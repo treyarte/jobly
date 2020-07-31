@@ -24,7 +24,7 @@ describe('Test Company class', () => {
     c2 = c2.rows[0];
   });
 
-  describe('getAll method test', () => {
+  describe('getAll method tests', () => {
     test('should return an object of with company data', async () => {
       const companies = await Company.getAll();
       expect(companies).toEqual({
@@ -79,6 +79,32 @@ describe('Test Company class', () => {
       expect(companies).toEqual({
         companies: [{ handle: c1.handle, name: c1.name }],
       });
+    });
+  });
+
+  describe('get method tests', () => {
+    test('should return a specified company', async () => {
+      const company = await Company.get('sun');
+      expect(company).toEqual({ company: c1 });
+    });
+    test("should return an empty object when criteria doesn't match", async () => {
+      const company = await Company.get('Some Company Handle');
+      expect(company).toEqual({ company: {} });
+    });
+  });
+
+  describe('create method test', () => {
+    test('should create a new company and return that company', async () => {
+      const values = {
+        handle: 'myComp',
+        name: 'bushido',
+        num_employees: 5,
+        description: 'some start up',
+        logo_url: 'http://some-test-url.com',
+      };
+      const newCompany = await Company.create(values);
+
+      expect(newCompany).toEqual({ company: values });
     });
   });
 });

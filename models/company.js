@@ -50,6 +50,40 @@ class Company {
 
     return { companies: results.rows };
   }
+
+  /**
+   *  Returns a specific company
+   * - Output: {company: {companyData}}
+   */
+  static async get(handle) {
+    const results = await db.query(
+      `SELECT handle, name, num_employees, description, logo_url
+        FROM companies WHERE handle = $1`,
+      [handle]
+    );
+
+    let company = {};
+    if (results.rows[0]) company = results.rows[0];
+
+    return { company };
+  }
+
+  /**
+   * accepts an object of values and creates a new company and returns that company
+   * - Output: {company: {companyData}}
+   */
+  static async create({ handle, name, num_employees, description, logo_url }) {
+    const results = await db.query(
+      `INSERT INTO companies (handle, name, num_employees, description, logo_url) 
+          VALUES ($1, $2, $3, $4, $5)  
+          RETURNING handle, name, num_employees, description, logo_url`,
+      [handle, name, num_employees, description, logo_url]
+    );
+
+    if (results.rows[0]) {
+      return { company: results.rows[0] };
+    }
+  }
 }
 
 module.exports = Company;
