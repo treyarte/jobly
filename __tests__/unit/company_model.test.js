@@ -88,12 +88,15 @@ describe('Test Company class', () => {
       expect(company).toEqual({ company: c1 });
     });
     test("should return an empty object when criteria doesn't match", async () => {
-      const company = await Company.get('Some Company Handle');
-      expect(company).toEqual({ company: {} });
+      try {
+        const company = await Company.get('Some Company Handle');
+      } catch (error) {
+        expect(error.message).toEqual('Company Not Found');
+      }
     });
   });
 
-  describe('create method test', () => {
+  describe('create method tests', () => {
     test('should create a new company and return that company', async () => {
       const values = {
         handle: 'myComp',
@@ -105,6 +108,40 @@ describe('Test Company class', () => {
       const newCompany = await Company.create(values);
 
       expect(newCompany).toEqual({ company: values });
+    });
+  });
+
+  describe('update method tests', () => {
+    test('should update any specified columns of a company', async () => {
+      const valuesToBeUpdated = { name: 'Update Company', num_employees: 2000 };
+      const companyToBeUpdated = await Company.update(
+        valuesToBeUpdated,
+        c1.handle
+      );
+
+      expect(companyToBeUpdated).toEqual({
+        Company: {
+          handle: c1.handle,
+          name: 'Update Company',
+          num_employees: 2000,
+          description: c1.description,
+          logo_url: c1.logo_url,
+        },
+      });
+    });
+  });
+
+  describe('Delete method tests', () => {
+    test('should delete a specified company', async () => {
+      const handle = c1.handle;
+      const results = await Company.delete(c1.handle);
+      expect(results).toEqual({ message: 'Company Deleted' });
+
+      try {
+        const company = await Company.get(handle);
+      } catch (error) {
+        expect(error.message).toEqual('Company Not Found');
+      }
     });
   });
 });

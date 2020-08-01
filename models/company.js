@@ -1,5 +1,6 @@
 const db = require('../db');
 const ExpressError = require('../helpers/expressError');
+const sqlForPartialUpdate = require('../helpers/partialUpdate');
 
 class Company {
   constructor(handle, name, num_employees, description, logo_url) {
@@ -63,14 +64,16 @@ class Company {
     );
 
     let company = {};
+
     if (results.rows[0]) company = results.rows[0];
+    else throw new ExpressError('Company Not Found', 404);
 
     return { company };
   }
 
   /**
    * accepts an object of values and creates a new company and returns that company
-   * - Output: {company: {companyData}}
+   * - Output: {Company: {companyData}}
    */
   static async create({ handle, name, num_employees, description, logo_url }) {
     const results = await db.query(
@@ -83,6 +86,37 @@ class Company {
     if (results.rows[0]) {
       return { company: results.rows[0] };
     }
+  }
+
+  /**
+   * accepts columns of values, updates a specified company and returns that updated company
+   * - Input: {column: value}, handle
+   * - Output: {Company: {companyData}}
+   */
+  static async update(columnsToBeUpdated, handle) {
+    const updateQuery = sqlForPartialUpdate(
+      'companies',
+      columnsToBeUpdated,
+      'handle',
+      handle
+    );
+
+    const results = await db.query(updateQuery.query, updateQuery.values);
+
+    return { Company: results.rows[0] };
+  }
+
+  /**
+   * Deletes the specified company by its handle and return a delete message
+   * - Input: handle
+   * - Output: {message: "Company Deleted"}
+   */
+  static async delete(handle) {
+    const company = Company.get(handle);
+
+    await db.query('DELETE FROM companies WHERE handle = $1', [handle]);
+
+    return { message: 'Company Deleted' };
   }
 }
 

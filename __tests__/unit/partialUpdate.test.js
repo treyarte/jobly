@@ -17,7 +17,7 @@ describe('partialUpdate()', () => {
       1
     );
     const query = `UPDATE companies SET handle=$${1}, name=$${2}, num_employees=$${3}, description=$${4}, logo_url=$${5} WHERE handle=$${6} RETURNING *`;
-
+    console.log(updateObj);
     const values = [
       'SUN',
       'Sunoco',
