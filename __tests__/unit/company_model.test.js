@@ -1,6 +1,7 @@
 const { NODE_ENV_TEST } = require('./jest.config.js');
 const db = require('../../db');
 const Company = require('../../models/company');
+const { createTestCompanies } = require('../integration/jest.config');
 
 let c1, c2;
 
@@ -8,20 +9,12 @@ describe('Test Company class', () => {
   beforeEach(async () => {
     db.query('DELETE FROM companies');
 
-    c1 = await db.query(
-      `INSERT INTO companies (handle, name, num_employees, description, logo_url) 
-        VALUES ('sun', 'sunoco', 1000, 'test', 'http://default.jpg')  
-        RETURNING handle, name, num_employees, description, logo_url`
-    );
-    c1 = c1.rows[0];
+    const testCompanies = await createTestCompanies();
 
-    c2 = await db.query(
-      `INSERT INTO companies (handle, name, num_employees, description, logo_url) 
-      VALUES ('test', 'test company', 500, 'test', 'http://default.jpg')
-      RETURNING handle, name, num_employees, description, logo_url`
-    );
+    c1 = testCompanies[0].company;
+    console.log(c1);
 
-    c2 = c2.rows[0];
+    c2 = testCompanies[1].company;
   });
 
   describe('getAll method tests', () => {
