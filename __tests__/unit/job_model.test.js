@@ -31,8 +31,27 @@ describe('Tests for Job model', () => {
     j2 = j2.rows[0];
   });
 
+  test('should return a list of jobs', async () => {
+    const jobs = await job.getAll();
+    expect(jobs).toEqual([j1, j2]);
+  });
+
   test('should create a new job', async () => {
-    expect(1).toBe(2);
+    const jobValues = {
+      title: 'test',
+      salary: 100000,
+      equity: 0.1,
+      company_handle: c1.handle,
+    };
+    const job = await Job.create(jobValues);
+
+    expect(job).toEqual({
+      title: jobValues.title,
+      salary: jobValues.salary,
+      equity: jobValues.equity,
+      date_posted: expect.any(Date),
+      company_handle: c1.handle,
+    });
   });
 });
 
