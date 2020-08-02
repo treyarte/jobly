@@ -16,7 +16,7 @@ describe('Tests for Job model', () => {
 
     j1 = await db.query(
       `INSERT INTO jobs (title, salary, equity, company_handle)
-        VALUES ($1, $2, $3, $4) RETURNING title, salary, equity, company_handle, date_posted`,
+        VALUES ($1, $2, $3, $4) RETURNING id, title, salary, equity, company_handle, date_posted`,
       ['software engineer', 60000, 0.4, c1.handle]
     );
 
@@ -24,7 +24,7 @@ describe('Tests for Job model', () => {
 
     j2 = await db.query(
       `INSERT INTO jobs (title, salary, equity, company_handle)
-        VALUES ($1, $2, $3, $4) RETURNING title, salary, equity, company_handle, date_posted`,
+        VALUES ($1, $2, $3, $4) RETURNING id, title, salary, equity, company_handle, date_posted`,
       ['Stocker', 20800, 0.5, c1.handle]
     );
 
@@ -32,8 +32,54 @@ describe('Tests for Job model', () => {
   });
 
   test('should return a list of jobs', async () => {
-    const jobs = await job.getAll();
-    expect(jobs).toEqual([j1, j2]);
+    let jobs = await Job.getAll();
+    expect(jobs).toEqual({
+      jobs: [
+        { company_handle: j1.company_handle, title: j1.title },
+        { company_handle: j2.company_handle, title: j2.title },
+      ],
+    });
+
+    jobs = await Job.getAll({ search: 'software' });
+    expect(jobs).toEqual({
+      jobs: [{ company_handle: j1.company_handle, title: j1.title }],
+    });
+
+    jobs = await Job.getAll({ min_salary: 20000 });
+    expect(jobs).toEqual({
+      jobs: [
+        { company_handle: j1.company_handle, title: j1.title },
+        { company_handle: j2.company_handle, title: j2.title },
+      ],
+    });
+
+    jobs = await Job.getAll({ min_equity: 0.4 });
+    expect(jobs).toEqual({
+      jobs: [{ company_handle: j2.company_handle, title: j2.title }],
+    });
+  });
+
+  test('should return a job with a company object', async () => {
+    const job = await Job.get(j1.id);
+
+    expect(job).toEqual({
+      title: j1.title,
+      salary: j1.salary,
+      equity: j1.equity,
+      date_posted: expect.any(Date),
+      company: c1,
+    });
+  });
+
+  test('should return an error when an invalid id is get', async () => {
+    try {
+      const job = await Job.get(0);
+    } catch (error) {
+      expect({ message: error.message, status: error.status }).toEqual({
+        message: 'job not found',
+        status: 404,
+      });
+    }
   });
 
   test('should create a new job', async () => {
