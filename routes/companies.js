@@ -2,7 +2,12 @@ const express = require('express');
 const router = express.Router();
 const ExpressError = require('../helpers/expressError');
 const Company = require('../models/company');
-const { response } = require('../app');
+const companySchema = require('../jsonSchemas/companySchema.json');
+const companyUpdateSchema = require('../jsonSchemas/companyUpdateSchema.json');
+const { validateJson } = require('../middlewares/ajv_validator');
+const Ajv = require('ajv');
+
+const ajv = new Ajv({ allErrors: true });
 
 router.get('/', async (req, res, next) => {
   try {
@@ -33,17 +38,17 @@ router.get('/:handle', async (req, res, next) => {
   }
 });
 
-router.post('/', async (req, res, next) => {
+router.post('/', validateJson(companySchema), async (req, res, next) => {
   try {
-    const { handle, name, num_employees, description, logo_url } = req.body;
-
-    const company = await Company.create({
+    const data = ({
       handle,
       name,
       num_employees,
       description,
       logo_url,
-    });
+    } = req.body);
+
+    const company = await Company.create(data);
 
     return res.status(201).json(company);
   } catch (error) {
@@ -51,18 +56,22 @@ router.post('/', async (req, res, next) => {
   }
 });
 
-router.patch('/:handle', async (req, res, next) => {
-  try {
-    const updateValues = req.body;
-    const { handle } = req.params;
+router.patch(
+  '/:handle',
+  validateJson(companyUpdateSchema),
+  async (req, res, next) => {
+    try {
+      const updateValues = req.body;
+      const { handle } = req.params;
 
-    const company = await Company.update(updateValues, handle);
+      const company = await Company.update(updateValues, handle);
 
-    return res.json(company);
-  } catch (error) {
-    return next(error);
+      return res.json(company);
+    } catch (error) {
+      return next(error);
+    }
   }
-});
+);
 
 router.delete('/:handle', async (req, res, next) => {
   try {

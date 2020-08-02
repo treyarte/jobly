@@ -26,4 +26,9 @@ async function createTestCompanies() {
   return [c1, c2];
 }
 
+async function createTestJobs() {
+  // let j1, j2;
+  // j1 = await
+}
+
 module.exports = { NODE_ENV_TEST, createTestCompanies };

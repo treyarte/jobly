@@ -1,0 +1,61 @@
+{
+  "default": {},
+  "description": "The root schema comprises the entire JSON document.",
+  "examples": [
+    {
+      "handle": "sun",
+      "name": "sunoco",
+      "num_employees": 2000,
+      "description": "test",
+      "logo_url": "http://default.jpg"
+    }
+  ],
+  "title": "The root schema",
+  "properties": {
+    "handle": {
+      "default": "",
+      "description": "An explanation about the purpose of this instance.",
+      "examples": ["sun"],
+      "maxLength": 100,
+      "minLength": 1,
+      "title": "The handle schema",
+      "type": "string"
+    },
+
+    "name": {
+      "default": "",
+      "description": "An explanation about the purpose of this instance.",
+      "examples": ["sunoco"],
+      "maxLength": 155,
+      "minLength": 1,
+      "title": "The name schema",
+      "type": "string"
+    },
+    "num_employees": {
+      "default": 0,
+      "description": "An explanation about the purpose of this instance.",
+      "examples": [2000],
+      "maximum": 1000000,
+      "minimum": 1,
+      "title": "The num_employees schema",
+      "type": "integer"
+    },
+    "description": {
+      "default": "",
+      "description": "An explanation about the purpose of this instance.",
+      "examples": ["test"],
+      "maxLength": 500,
+      "title": "The description schema",
+      "type": "string"
+    },
+    "logo_url": {
+      "default": "",
+      "description": "An explanation about the purpose of this instance.",
+      "examples": ["http://default.jpg"],
+      "title": "The logo_url schema",
+      "format": "uri",
+      "type": "string"
+    }
+  },
+  "additionalProperties": true
+}
