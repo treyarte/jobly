@@ -3,14 +3,6 @@ const ExpressError = require('../helpers/expressError');
 const sqlForPartialUpdate = require('../helpers/partialUpdate');
 
 class Company {
-  constructor(handle, name, num_employees, description, logo_url) {
-    this.handle = handle;
-    this.name = name;
-    this.num_employees = num_employees;
-    this.description = description;
-    this.logo_url = logo_url;
-  }
-
   /**
    *  Returns a list of company objects
    * - criteria:  key value pair with Specific conditions on the search
@@ -93,10 +85,10 @@ class Company {
    * - Input: {column: value}, handle
    * - Output: {Company: {companyData}}
    */
-  static async update(columnsToBeUpdated, handle) {
+  static async update(valuesObj, handle) {
     const updateQuery = sqlForPartialUpdate(
       'companies',
-      columnsToBeUpdated,
+      valuesObj,
       'handle',
       handle
     );

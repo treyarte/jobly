@@ -25,7 +25,7 @@ describe('Tests for Job model', () => {
     j2 = await db.query(
       `INSERT INTO jobs (title, salary, equity, company_handle)
         VALUES ($1, $2, $3, $4) RETURNING id, title, salary, equity, company_handle, date_posted`,
-      ['Stocker', 20800, 0.5, c1.handle]
+      ['test job', 20800, 0.5, c1.handle]
     );
 
     j2 = j2.rows[0];
@@ -98,6 +98,39 @@ describe('Tests for Job model', () => {
       date_posted: expect.any(Date),
       company_handle: c1.handle,
     });
+  });
+
+  test('should update a specified job only at the given columns', async () => {
+    const updatedValues = {
+      salary: 80000,
+      equity: 0.7,
+    };
+    (j1.salary = 80000), (j1.equity = 0.7);
+    const updatedJob = await Job.update(updatedValues, j1.id);
+
+    expect(updatedJob).toEqual({
+      job: j1,
+    });
+  });
+
+  test('should delete a job', async () => {
+    try {
+      const deleteMessage = await Job.delete(j1.id);
+
+      expect(deleteMessage).toEqual({ message: 'Job deleted' });
+
+      await Job.get(j1.id);
+    } catch (error) {
+      expect(error.message).toEqual('job not found');
+    }
+  });
+
+  test('should throw an error if job id is invalid', async () => {
+    try {
+      await Job.get(0);
+    } catch (error) {
+      expect(error.message).toEqual('job not found');
+    }
   });
 });
 

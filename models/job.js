@@ -61,6 +61,21 @@ class Job {
 
     return results.rows[0];
   }
+
+  static async update(valuesObj, id) {
+    const updateObj = sqlForPartialUpdate('jobs', valuesObj, 'id', id);
+
+    const results = await db.query(updateObj.query, updateObj.values);
+
+    return { job: results.rows[0] };
+  }
+
+  static async delete(id) {
+    const job = Job.get(id);
+    await db.query('DELETE FROM jobs WHERE id = $1', [job.id]);
+
+    return { message: 'Job deleted' };
+  }
 }
 
 module.exports = Job;
