@@ -2,8 +2,8 @@ require('dotenv').config();
 
 const NODE_ENV_TEST = (process.env.NODE_ENV = 'test');
 
-const db = require('../../db');
 const Company = require('../../models/company');
+const Job = require('../../models/job');
 
 async function createTestCompanies() {
   let c1, c2;
@@ -26,9 +26,24 @@ async function createTestCompanies() {
   return [c1, c2];
 }
 
-async function createTestJobs() {
-  // let j1, j2;
-  // j1 = await
+async function createTestJobs(company_handle) {
+  let j1, j2;
+
+  j1 = await Job.create({
+    title: 'software engineer',
+    salary: 60000,
+    equity: 0.4,
+    company_handle: company_handle,
+  });
+
+  j2 = await Job.create({
+    title: 'test job',
+    salary: 20800,
+    equity: 0.5,
+    company_handle: company_handle,
+  });
+
+  return [j1, j2];
 }
 
-module.exports = { NODE_ENV_TEST, createTestCompanies };
+module.exports = { NODE_ENV_TEST, createTestCompanies, createTestJobs };

@@ -20,7 +20,7 @@
       "description": "An explanation about the purpose of this instance.",
       "examples": ["software engineer"],
       "maxLength": 100,
-      "minLength": 3,
+      "minLength": 2,
       "title": "The title schema",
       "type": "string"
     },

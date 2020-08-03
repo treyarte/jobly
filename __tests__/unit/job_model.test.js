@@ -1,6 +1,9 @@
 const { NODE_ENV_TEST } = require('./jest.config.js');
 const db = require('../../db');
-const { createTestCompanies } = require('../integration/jest.config');
+const {
+  createTestCompanies,
+  createTestJobs,
+} = require('../integration/jest.config');
 const Job = require('../../models/job');
 
 let j1, j2, c1;
@@ -14,21 +17,10 @@ describe('Tests for Job model', () => {
 
     c1 = testCompanies[0].company;
 
-    j1 = await db.query(
-      `INSERT INTO jobs (title, salary, equity, company_handle)
-        VALUES ($1, $2, $3, $4) RETURNING id, title, salary, equity, company_handle, date_posted`,
-      ['software engineer', 60000, 0.4, c1.handle]
-    );
+    const testJobs = await createTestJobs(c1.handle);
 
-    j1 = j1.rows[0];
-
-    j2 = await db.query(
-      `INSERT INTO jobs (title, salary, equity, company_handle)
-        VALUES ($1, $2, $3, $4) RETURNING id, title, salary, equity, company_handle, date_posted`,
-      ['test job', 20800, 0.5, c1.handle]
-    );
-
-    j2 = j2.rows[0];
+    j1 = testJobs[0].job;
+    j2 = testJobs[1].job;
   });
 
   test('should return a list of jobs', async () => {
@@ -60,14 +52,18 @@ describe('Tests for Job model', () => {
   });
 
   test('should return a job with a company object', async () => {
+    console.log(j1);
     const job = await Job.get(j1.id);
 
     expect(job).toEqual({
-      title: j1.title,
-      salary: j1.salary,
-      equity: j1.equity,
-      date_posted: expect.any(Date),
-      company: c1,
+      job: {
+        id: j1.id,
+        title: j1.title,
+        salary: j1.salary,
+        equity: j1.equity,
+        date_posted: expect.any(Date),
+        company: c1,
+      },
     });
   });
 
@@ -92,11 +88,14 @@ describe('Tests for Job model', () => {
     const job = await Job.create(jobValues);
 
     expect(job).toEqual({
-      title: jobValues.title,
-      salary: jobValues.salary,
-      equity: jobValues.equity,
-      date_posted: expect.any(Date),
-      company_handle: c1.handle,
+      job: {
+        id: expect.any(Number),
+        title: jobValues.title,
+        salary: jobValues.salary,
+        equity: jobValues.equity,
+        date_posted: expect.any(Date),
+        company_handle: c1.handle,
+      },
     });
   });
 

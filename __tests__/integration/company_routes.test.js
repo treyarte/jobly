@@ -70,6 +70,30 @@ describe('/POST companies', () => {
     expect(resp.body).toEqual({ company: newCompanyValues });
     expect(resp.statusCode).toBe(201);
   });
+
+  test('should return an error message displaying validation errors', async () => {
+    try {
+      const newCompanyValues = {
+        name: '',
+        num_employees: 'hi',
+        description: 0,
+        logo_url: 'notanurl',
+      };
+      const resp = await request(app).post('/companies').send(newCompanyValues);
+
+      expect(resp.statusCode).toEqual(400);
+    } catch (error) {
+      expect(error.message).toEqual({
+        message: [
+          "should have required property 'handle'",
+          'should NOT be shorter than 1 characters',
+          'should be integer',
+          'should be string',
+          'should match format "uri"',
+        ],
+      });
+    }
+  });
 });
 
 describe('/PATCH companies', () => {
