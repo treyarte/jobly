@@ -52,7 +52,38 @@ test('should return a specified user', async () => {
   expect(user).toEqual({ user: u1 });
 });
 
-describe('', () => {});
+test('should return an error for an invalid username', async () => {
+  try {
+    await User.get('Username that is not real');
+  } catch (error) {
+    expect(error.message).toEqual('User not found');
+    expect(error.status).toEqual(404);
+  }
+});
+
+test('should update a specified user based on columns sent', async () => {
+  const user = await User.update(
+    { email: 'myNewUpdated@email.com', last_name: 'updatedLastName' },
+    u1.username
+  );
+
+  expect(user.email).toEqual('myNewUpdated@email.com');
+  expect(user.last_name).toEqual('updatedLastName');
+});
+
+test('should  deleted a specified user', async () => {
+  try {
+    const { message } = await User.delete(u1.username);
+
+    expect(message).toEqual('User deleted');
+
+    //expecting a not found error
+    await User.get(u1.username);
+  } catch (error) {
+    expect(error.message).toEqual('User not found');
+    expect(error.status).toEqual(404);
+  }
+});
 
 afterAll(async () => {
   await db.end();
