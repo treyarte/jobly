@@ -27,6 +27,18 @@ describe('Authentication test routes', () => {
         iat: expect.any(Number),
       });
     });
+
+    test('should return 400 error if invalid credentials', async () => {
+      const resp = await request(app)
+        .post('/login')
+        .send({ username: 'notReal', password: 'no' });
+
+      expect(resp.body).toEqual({
+        status: 400,
+        message: 'Invalid username/password combination',
+      });
+      expect(resp.status).toBe(400);
+    });
   });
 });
 

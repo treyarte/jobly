@@ -31,6 +31,7 @@ describe('Test for the user model', () => {
         last_name: 'umehara',
         email: 'test@user.com',
         photo_url: 'http://sometestimage.com',
+        is_admin: false,
       },
     });
   });
@@ -53,8 +54,8 @@ describe('Test for the user model', () => {
   test('should return a list of users', async () => {
     const users = await User.getAll();
     //hiding password and photo url properties
-    showOrHideProperties(u1, ['password', 'photo_url'], false);
-    showOrHideProperties(u2, ['password', 'photo_url'], false);
+    showOrHideProperties(u1, ['password', 'photo_url', 'is_admin'], false);
+    showOrHideProperties(u2, ['password', 'photo_url', 'is_admin'], false);
 
     expect(users).toEqual({ users: [u1, u2] });
   });

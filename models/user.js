@@ -1,7 +1,6 @@
 const db = require('../db');
 const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-const { SECRET_KEY, BCRYPT_WORK_FACTOR } = require('../config');
+const { BCRYPT_WORK_FACTOR } = require('../config');
 const ExpressError = require('../helpers/expressError');
 const sqlPartialUpdate = require('../helpers/partialUpdate');
 
@@ -25,7 +24,7 @@ class User {
 
     const results = await db.query(
       `INSERT INTO users (username, password, first_name, last_name, email, photo_url)
-        VALUES ($1, $2, $3, $4, $5, $6) RETURNING username, password, first_name, last_name, email, photo_url`,
+        VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
       [username, hashedPassword, first_name, last_name, email, photo_url]
     );
 

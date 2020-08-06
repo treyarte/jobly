@@ -2,6 +2,7 @@ const { NODE_ENV_TEST } = require('./jest.config.js');
 const request = require('supertest');
 const app = require('../../app');
 const db = require('../../db');
+const jwt = require('jsonwebtoken');
 const { createTestUsers } = require('./jest.config');
 const { showOrHideProperties } = require('../unit/jest.config');
 const User = require('../../models/user');
@@ -19,8 +20,8 @@ describe('User test routes', () => {
     test('should get a list of users', async () => {
       const resp = await request(app).get('/users');
 
-      showOrHideProperties(u1, ['photo_url', 'password'], false);
-      showOrHideProperties(u2, ['photo_url', 'password'], false);
+      showOrHideProperties(u1, ['photo_url', 'password', 'is_admin'], false);
+      showOrHideProperties(u2, ['photo_url', 'password', 'is_admin'], false);
 
       expect(resp.body).toEqual({ users: [u1, u2] });
       expect(resp.statusCode).toBe(200);
@@ -32,7 +33,7 @@ describe('User test routes', () => {
       const resp = await request(app).get(`/users/${u1.username}`);
 
       showOrHideProperties(u1, ['photo_url'], true);
-      showOrHideProperties(u1, ['password'], false);
+      showOrHideProperties(u1, ['password', 'is_admin'], false);
 
       expect(resp.body).toEqual({ user: u1 });
       expect(resp.statusCode).toBe(200);
@@ -50,16 +51,12 @@ describe('User test routes', () => {
         password: 'test',
       };
       const resp = await request(app).post('/users').send(newUser);
+      const { token } = resp.body;
 
-      expect(resp.body).toEqual({
-        user: {
-          username: 'pTestUser',
-          first_name: 'person',
-          last_name: 'test',
-          email: 'ptest@user.com',
-          photo_url: 'http://test.com',
-          password: expect.any(String),
-        },
+      expect(jwt.decode(token)).toEqual({
+        username: 'pTestUser',
+        is_admin: false,
+        iat: expect.any(Number),
       });
       expect(resp.statusCode).toBe(201);
     });
