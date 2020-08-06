@@ -1,6 +1,7 @@
 const db = require('../db');
 const ExpressError = require('../helpers/expressError');
 const sqlForPartialUpdate = require('../helpers/partialUpdate');
+const Company = require('./company');
 class Job {
   /**
    * Get a list of jobs based on the criteria specified.
@@ -70,6 +71,9 @@ class Job {
    */
 
   static async create({ title, salary, equity, company_handle }) {
+    //will throw an error if company does not exist
+    await Company.get(company_handle);
+
     const results = await db.query(
       `INSERT INTO jobs (title, salary, equity, company_handle) 
         VALUES ($1, $2, $3, $4) RETURNING id, title, salary, equity, date_posted, company_handle`,
@@ -84,6 +88,10 @@ class Job {
    */
   static async update(valuesObj, id) {
     const { job } = await Job.get(id);
+
+    if (valuesObj.company_handle) {
+      await Company.get(valuesObj.company_handle);
+    }
 
     const updateObj = sqlForPartialUpdate('jobs', valuesObj, 'id', job.id);
 

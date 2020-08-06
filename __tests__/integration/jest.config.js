@@ -57,6 +57,7 @@ async function createTestUsers() {
     last_name: 'person',
     email: 'sam@user.com',
     photo_url: 'http://sometestimage.com',
+    is_admin: true,
   });
 
   u2 = await User.register({
@@ -66,6 +67,7 @@ async function createTestUsers() {
     last_name: 'dood',
     email: 'max@user.com',
     photo_url: 'http://sometestimage.com',
+    is_admin: false,
   });
 
   return [u1.user, u2.user];

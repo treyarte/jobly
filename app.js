@@ -15,15 +15,19 @@ app.use(morgan('tiny'));
 
 /**Routes */
 
+const authRoutes = require('./routes/auth');
+app.use('/', authRoutes);
+
+const { authenticateJWT } = require('./middleware/auth');
+app.use(authenticateJWT);
+
 const companyRoutes = require('./routes/companies');
 const jobRoutes = require('./routes/jobs');
 const userRoutes = require('./routes/users');
-const authRoutes = require('./routes/auth');
 
 app.use('/companies', companyRoutes);
 app.use('/jobs', jobRoutes);
 app.use('/users', userRoutes);
-app.use('/', authRoutes);
 /** 404 handler */
 
 app.use(function (req, res, next) {

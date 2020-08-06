@@ -14,13 +14,23 @@ describe('User test routes', () => {
     const users = await createTestUsers();
     u1 = users[0];
     u2 = users[1];
+
+    resp = await request(app)
+      .post(`/login`)
+      .send({ username: u1.username, password: 'test' });
+    const { token } = resp.body;
+    u1.token = token;
   });
 
   describe('/GET users', () => {
     test('should get a list of users', async () => {
-      const resp = await request(app).get('/users');
+      const resp = await request(app).get('/users').send({ token: u1.token });
 
-      showOrHideProperties(u1, ['photo_url', 'password', 'is_admin'], false);
+      showOrHideProperties(
+        u1,
+        ['photo_url', 'password', 'is_admin', 'token'],
+        false
+      );
       showOrHideProperties(u2, ['photo_url', 'password', 'is_admin'], false);
 
       expect(resp.body).toEqual({ users: [u1, u2] });
@@ -30,10 +40,12 @@ describe('User test routes', () => {
 
   describe('/GET users/:username', () => {
     test('should get a specific user based on their username', async () => {
-      const resp = await request(app).get(`/users/${u1.username}`);
+      const resp = await request(app)
+        .get(`/users/${u1.username}`)
+        .send({ token: u1.token });
 
       showOrHideProperties(u1, ['photo_url'], true);
-      showOrHideProperties(u1, ['password', 'is_admin'], false);
+      showOrHideProperties(u1, ['password', 'is_admin', 'token'], false);
 
       expect(resp.body).toEqual({ user: u1 });
       expect(resp.statusCode).toBe(200);
@@ -49,6 +61,7 @@ describe('User test routes', () => {
         email: 'ptest@user.com',
         photo_url: 'http://test.com',
         password: 'test',
+        is_admin: false,
       };
       const resp = await request(app).post('/users').send(newUser);
       const { token } = resp.body;
@@ -71,6 +84,7 @@ describe('User test routes', () => {
 
       const resp = await request(app)
         .patch(`/users/${u1.username}`)
+        .send({ token: u1.token })
         .send(updatedValues);
 
       showOrHideProperties(u1, ['password'], false);
@@ -84,7 +98,9 @@ describe('User test routes', () => {
 
   describe('/DELETE users/:username', () => {
     test('should delete a user and return a message', async () => {
-      const resp = await request(app).delete(`/users/${u1.username}`);
+      const resp = await request(app)
+        .delete(`/users/${u1.username}`)
+        .send({ token: u1.token });
 
       expect(resp.body).toEqual({ message: 'User deleted' });
       expect(resp.statusCode).toBe(200);

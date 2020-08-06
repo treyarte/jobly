@@ -16,6 +16,7 @@ class User {
     last_name,
     email,
     photo_url = null,
+    is_admin = false,
   }) {
     await uniqueEmail(email);
     await uniqueUsername(username);
@@ -23,9 +24,17 @@ class User {
     const hashedPassword = await bcrypt.hash(password, BCRYPT_WORK_FACTOR);
 
     const results = await db.query(
-      `INSERT INTO users (username, password, first_name, last_name, email, photo_url)
-        VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
-      [username, hashedPassword, first_name, last_name, email, photo_url]
+      `INSERT INTO users (username, password, first_name, last_name, email, photo_url, is_admin)
+        VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
+      [
+        username,
+        hashedPassword,
+        first_name,
+        last_name,
+        email,
+        photo_url,
+        is_admin,
+      ]
     );
 
     return { user: results.rows[0] };
@@ -86,11 +95,12 @@ class User {
    */
   static async update(updatedValues, username) {
     if (updatedValues.email) {
-      uniqueEmail(uniqueEmail.email);
+      await uniqueEmail(uniqueEmail.email);
     }
 
+    console.log(updatedValues.username);
     if (updatedValues.username) {
-      uniqueUsername(updatedValues.username);
+      await uniqueUsername(updatedValues.username);
     }
 
     const { user } = await User.get(username);

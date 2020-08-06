@@ -2,25 +2,36 @@ const { NODE_ENV_TEST } = require('./jest.config.js');
 const request = require('supertest');
 const app = require('../../app');
 const db = require('../../db');
-const Company = require('../../models/company');
-const { createTestCompanies } = require('./jest.config');
+const { createTestCompanies, createTestUsers } = require('./jest.config');
 
-let c1, c2;
+let c1, c2, u1;
 
 describe('Test Routes for companies', () => {
   beforeEach(async () => {
     db.query('DELETE FROM companies');
+    db.query('DELETE FROM users');
 
     const testCompanies = await createTestCompanies();
 
     c1 = testCompanies[0].company;
 
     c2 = testCompanies[1].company;
+
+    const users = await createTestUsers();
+    u1 = users[0];
+
+    resp = await request(app)
+      .post(`/login`)
+      .send({ username: u1.username, password: 'test' });
+    const { token } = resp.body;
+    u1.token = token;
   });
 
   describe('/GET companies', () => {
     test('should get a list of users and a status 200', async () => {
-      const resp = await request(app).get('/companies');
+      const resp = await request(app)
+        .get('/companies')
+        .send({ token: u1.token });
 
       expect(resp.body).toEqual({
         companies: [
@@ -32,9 +43,9 @@ describe('Test Routes for companies', () => {
     });
 
     test('should return a list of users with the specified criteria', async () => {
-      const resp = await request(app).get(
-        '/companies?search=su&min_employees=600&max_employees=1100'
-      );
+      const resp = await request(app)
+        .get('/companies?search=su&min_employees=600&max_employees=1100')
+        .send({ token: u1.token });
 
       expect(resp.body).toEqual({
         companies: [{ handle: c1.handle, name: c1.name }],
@@ -44,13 +55,17 @@ describe('Test Routes for companies', () => {
 
   describe('/GET/:handle companies', () => {
     test('should return  a specific company', async () => {
-      const resp = await request(app).get(`/companies/${c1.handle}`);
+      const resp = await request(app)
+        .get(`/companies/${c1.handle}`)
+        .send({ token: u1.token });
 
       expect(resp.body).toEqual({ company: c1 });
       expect(resp.statusCode).toBe(200);
     });
     test('should return 404 for handle that does not exist', async () => {
-      const resp = await request(app).get(`/companies/noexist`);
+      const resp = await request(app)
+        .get(`/companies/noexist`)
+        .send({ token: u1.token });
       expect(resp.statusCode).toBe(404);
     });
   });
@@ -65,7 +80,10 @@ describe('/POST companies', () => {
       description: 'some company',
       logo_url: 'http://some-test-url.com',
     };
-    const resp = await request(app).post('/companies').send(newCompanyValues);
+    const resp = await request(app)
+      .post('/companies')
+      .send({ token: u1.token })
+      .send(newCompanyValues);
 
     expect(resp.body).toEqual({ company: newCompanyValues });
     expect(resp.statusCode).toBe(201);
@@ -79,7 +97,10 @@ describe('/POST companies', () => {
         description: 0,
         logo_url: 'notanurl',
       };
-      const resp = await request(app).post('/companies').send(newCompanyValues);
+      const resp = await request(app)
+        .post('/companies')
+        .send({ token: u1.token })
+        .send(newCompanyValues);
 
       expect(resp.statusCode).toEqual(400);
     } catch (error) {
@@ -100,6 +121,7 @@ describe('/PATCH companies', () => {
   test('should update a specified company ', async () => {
     const resp = await request(app)
       .patch(`/companies/${c1.handle}`)
+      .send({ token: u1.token })
       .send({ name: 'updated company', num_employees: 200 });
 
     expect(resp.body).toEqual({
@@ -118,7 +140,9 @@ describe('/PATCH companies', () => {
 
 describe('/DELETE companies', () => {
   test('should delete a company and return a message', async () => {
-    const resp = await request(app).delete(`/companies/${c1.handle}`);
+    const resp = await request(app)
+      .delete(`/companies/${c1.handle}`)
+      .send({ token: u1.token });
 
     expect(resp.body).toEqual({ message: 'Company Deleted' });
     expect(resp.statusCode).toBe(200);

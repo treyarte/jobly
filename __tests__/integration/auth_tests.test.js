@@ -23,7 +23,7 @@ describe('Authentication test routes', () => {
 
       expect(jwt.decode(token)).toEqual({
         username: 'sam',
-        is_admin: false,
+        is_admin: true,
         iat: expect.any(Number),
       });
     });

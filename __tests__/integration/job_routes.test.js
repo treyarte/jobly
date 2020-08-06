@@ -2,15 +2,20 @@ const { NODE_ENV_TEST } = require('./jest.config.js');
 const request = require('supertest');
 const app = require('../../app');
 const db = require('../../db');
-const Company = require('../../models/company');
-const { createTestCompanies, createTestJobs } = require('./jest.config');
 
-let c1, j1, j2;
+const {
+  createTestCompanies,
+  createTestJobs,
+  createTestUsers,
+} = require('./jest.config');
+
+let c1, j1, j2, u1;
 
 describe('Test routes for jobs', () => {
   beforeEach(async () => {
     db.query('DELETE FROM companies');
     db.query('DELETE FROM jobs');
+    db.query('DELETE FROM users');
     const testCompanies = await createTestCompanies();
 
     c1 = testCompanies[0].company;
@@ -19,11 +24,20 @@ describe('Test routes for jobs', () => {
 
     j1 = testJobs[0].job;
     j2 = testJobs[1].job;
+
+    const users = await createTestUsers();
+    u1 = users[0];
+
+    resp = await request(app)
+      .post(`/login`)
+      .send({ username: u1.username, password: 'test' });
+    const { token } = resp.body;
+    u1.token = token;
   });
 
   describe('/GET jobs', () => {
     test('should return a list of jobs', async () => {
-      const resp = await request(app).get('/jobs');
+      const resp = await request(app).get('/jobs').send({ token: u1.token });
 
       expect(resp.body).toEqual({
         jobs: [
@@ -36,13 +50,17 @@ describe('Test routes for jobs', () => {
     });
 
     test('should return a list of jobs based of query string', async () => {
-      let resp = await request(app).get('/jobs?search=software');
+      let resp = await request(app)
+        .get('/jobs?search=software')
+        .send({ token: u1.token });
 
       expect(resp.body).toEqual({
         jobs: [{ company_handle: j1.company_handle, title: j1.title }],
       });
 
-      resp = await request(app).get('/jobs?min_salary=1000');
+      resp = await request(app)
+        .get('/jobs?min_salary=1000')
+        .send({ token: u1.token });
 
       expect(resp.body).toEqual({
         jobs: [
@@ -51,7 +69,9 @@ describe('Test routes for jobs', () => {
         ],
       });
 
-      resp = await request(app).get('/jobs?min_equity=.4');
+      resp = await request(app)
+        .get('/jobs?min_equity=.4')
+        .send({ token: u1.token });
 
       expect(resp.body).toEqual({
         jobs: [{ company_handle: j2.company_handle, title: j2.title }],
@@ -61,7 +81,9 @@ describe('Test routes for jobs', () => {
 
   describe('/GET jobs/:id', () => {
     test('should get a specified job by its id', async () => {
-      const resp = await request(app).get(`/jobs/${j1.id}`);
+      const resp = await request(app)
+        .get(`/jobs/${j1.id}`)
+        .send({ token: u1.token });
 
       expect(resp.body).toEqual({
         job: {
@@ -77,7 +99,7 @@ describe('Test routes for jobs', () => {
     });
 
     test('should return 404 for an invalid id', async () => {
-      const resp = await request(app).get('/jobs/0');
+      const resp = await request(app).get('/jobs/0').send({ token: u1.token });
 
       expect(resp.statusCode).toBe(404);
     });
@@ -91,7 +113,10 @@ describe('Test routes for jobs', () => {
         equity: 0.2,
         company_handle: c1.handle,
       };
-      const resp = await request(app).post('/jobs').send(jobValues);
+      const resp = await request(app)
+        .post('/jobs')
+        .send({ token: u1.token })
+        .send(jobValues);
 
       expect(resp.body).toEqual({
         id: expect.any(Number),
@@ -114,6 +139,7 @@ describe('Test routes for jobs', () => {
 
       const resp = await request(app)
         .patch(`/jobs/${j1.id}`)
+        .send({ token: u1.token })
         .send(updateValues);
 
       j1.title = updateValues.title;
@@ -141,7 +167,9 @@ describe('Test routes for jobs', () => {
 
   describe('/DELETE jobs', () => {
     test('should delete and return a message', async () => {
-      const resp = await request(app).delete(`/jobs/${j1.id}`);
+      const resp = await request(app)
+        .delete(`/jobs/${j1.id}`)
+        .send({ token: u1.token });
 
       expect(resp.body).toEqual({ message: 'Job deleted' });
       expect(resp.statusCode).toBe(200);

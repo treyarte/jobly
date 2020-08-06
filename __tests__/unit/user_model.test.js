@@ -21,6 +21,7 @@ describe('Test for the user model', () => {
       last_name: 'umehara',
       email: 'test@user.com',
       photo_url: 'http://sometestimage.com',
+      is_admin: false,
     });
 
     expect(user).toEqual({

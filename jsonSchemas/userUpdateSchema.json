@@ -1,0 +1,78 @@
+{
+  "default": {},
+  "description": "The root schema comprises the entire JSON document.",
+  "examples": [
+    {
+      "username": "max",
+      "password": "test",
+      "first_name": "maximilian",
+      "last_name": "dood",
+      "email": "max@user.com",
+      "photo_url": "http://sometestimage.com",
+      "is_admin": false
+    }
+  ],
+  "required": [],
+  "title": "The root schema",
+  "properties": {
+    "username": {
+      "$id": "#/properties/username",
+      "type": "string",
+      "title": "The username schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": "",
+      "examples": ["max"]
+    },
+    "password": {
+      "$id": "#/properties/password",
+      "type": "string",
+      "title": "The password schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": "",
+      "examples": ["test"]
+    },
+    "first_name": {
+      "$id": "#/properties/first_name",
+      "type": "string",
+      "title": "The first_name schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": "",
+      "examples": ["maximilian"]
+    },
+    "last_name": {
+      "$id": "#/properties/last_name",
+      "type": "string",
+      "title": "The last_name schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": "",
+      "examples": ["dood"]
+    },
+    "email": {
+      "$id": "#/properties/email",
+      "type": "string",
+      "title": "The email schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": "",
+      "examples": ["max@user.com"],
+      "format": "email"
+    },
+    "photo_url": {
+      "$id": "#/properties/photo_url",
+      "type": "string",
+      "title": "The photo_url schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": "",
+      "examples": ["http://sometestimage.com"],
+      "format": "uri"
+    },
+    "is_admin": {
+      "$id": "#/properties/is_admin",
+      "type": "boolean",
+      "title": "The is_admin schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": false,
+      "examples": [false]
+    }
+  },
+  "additionalProperties": true
+}
