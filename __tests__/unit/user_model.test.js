@@ -35,6 +35,21 @@ describe('Test for the user model', () => {
     });
   });
 
+  // test('should throw an error for a non unique email', async () => {
+  //   try {
+  //     const user = await User.register({
+  //       username: 'test user',
+  //       password: 'test',
+  //       first_name: 'Daigo',
+  //       last_name: 'umehara',
+  //       email: u1.email,
+  //       photo_url: 'http://sometestimage.com',
+  //     });
+  //   } catch (error) {
+  //     expect(error.message).toEqual('Email is in use');
+  //   }
+  // });
+
   test('should return a list of users', async () => {
     const users = await User.getAll();
     //hiding password and photo url properties
@@ -62,7 +77,7 @@ test('should return an error for an invalid username', async () => {
 });
 
 test('should update a specified user based on columns sent', async () => {
-  const user = await User.update(
+  const { user } = await User.update(
     { email: 'myNewUpdated@email.com', last_name: 'updatedLastName' },
     u1.username
   );
@@ -70,6 +85,14 @@ test('should update a specified user based on columns sent', async () => {
   expect(user.email).toEqual('myNewUpdated@email.com');
   expect(user.last_name).toEqual('updatedLastName');
 });
+
+// test('should return an error on update for a non unique email', async () => {
+//   try {
+//     await User.update({ email: u1.email }, u1.username);
+//   } catch (error) {
+//     expect(error.message).toEqual('Email is in use');
+//   }
+// });
 
 test('should  deleted a specified user', async () => {
   try {

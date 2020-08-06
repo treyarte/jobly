@@ -2,6 +2,10 @@ const db = require('../db');
 const ExpressError = require('../helpers/expressError');
 const sqlForPartialUpdate = require('../helpers/partialUpdate');
 class Job {
+  /**
+   * Get a list of jobs based on the criteria specified.
+   * returns: Jobs object: array of jobs
+   */
   static async getAll(criteria = null) {
     const baseQuery = `SELECT title, company_handle FROM jobs WHERE 1 = 1 `;
     const whereClause = [];
@@ -10,6 +14,8 @@ class Job {
     if (criteria !== null) {
       if (criteria.search) {
         criteriaValues.push(`%${criteria.search}%`);
+        //adds a parameterized query on to the where clause.
+        //The length specifies where search will be at in the values array in db.query
         whereClause.push(` AND title LIKE $${criteriaValues.length}`);
       }
       if (criteria.min_salary) {
@@ -31,6 +37,10 @@ class Job {
     return { jobs: results.rows };
   }
 
+  /**
+   * Gets a specific job based on its id
+   * return: job object
+   */
   static async get(id) {
     const results = await db.query(
       'SELECT id, title, salary, equity, date_posted, company_handle FROM jobs WHERE id = $1',
@@ -54,6 +64,11 @@ class Job {
     }
   }
 
+  /**
+   * creates and return a new job
+   *
+   */
+
   static async create({ title, salary, equity, company_handle }) {
     const results = await db.query(
       `INSERT INTO jobs (title, salary, equity, company_handle) 
@@ -64,6 +79,9 @@ class Job {
     return { job: results.rows[0] };
   }
 
+  /**
+   * updates a specified job
+   */
   static async update(valuesObj, id) {
     const { job } = await Job.get(id);
 
@@ -74,6 +92,11 @@ class Job {
     return { job: results.rows[0] };
   }
 
+  /**
+   *
+   * deletes a job based on its id
+   * returns: object with a message property
+   */
   static async delete(id) {
     const { job } = await Job.get(id);
 
