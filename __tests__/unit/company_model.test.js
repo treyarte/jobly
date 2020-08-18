@@ -7,7 +7,7 @@ let c1, c2;
 
 describe('Test Company class', () => {
   beforeEach(async () => {
-    db.query('DELETE FROM companies');
+    await db.query('DELETE FROM companies');
 
     const testCompanies = await createTestCompanies();
 

@@ -13,9 +13,9 @@ let c1, j1, j2, u1;
 
 describe('Test routes for jobs', () => {
   beforeEach(async () => {
-    db.query('DELETE FROM companies');
-    db.query('DELETE FROM jobs');
-    db.query('DELETE FROM users');
+    await db.query('DELETE FROM companies');
+    await db.query('DELETE FROM jobs');
+    await db.query('DELETE FROM users');
     const testCompanies = await createTestCompanies();
 
     c1 = testCompanies[0].company;

@@ -8,8 +8,8 @@ let c1, c2, u1;
 
 describe('Test Routes for companies', () => {
   beforeEach(async () => {
-    db.query('DELETE FROM companies');
-    db.query('DELETE FROM users');
+    await db.query('DELETE FROM companies');
+    await db.query('DELETE FROM users');
 
     const testCompanies = await createTestCompanies();
 

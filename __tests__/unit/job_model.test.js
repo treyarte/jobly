@@ -10,8 +10,8 @@ let j1, j2, c1;
 
 describe('Tests for Job model', () => {
   beforeEach(async () => {
-    db.query('DELETE FROM jobs');
-    db.query('DELETE FROM companies');
+    await db.query('DELETE FROM jobs');
+    await db.query('DELETE FROM companies');
 
     const testCompanies = await createTestCompanies();
 

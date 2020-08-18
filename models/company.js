@@ -68,6 +68,11 @@ class Company {
    * - Output: {Company: {companyData}}
    */
   static async create({ handle, name, num_employees, description, logo_url }) {
+    const checkComp = await this.checkCompany(handle);
+    if (checkComp) {
+      throw new ExpressError('Company handle already exist', 400);
+    }
+
     const results = await db.query(
       `INSERT INTO companies (handle, name, num_employees, description, logo_url) 
           VALUES ($1, $2, $3, $4, $5)  
@@ -109,6 +114,24 @@ class Company {
     await db.query('DELETE FROM companies WHERE handle = $1', [handle]);
 
     return { message: 'Company Deleted' };
+  }
+
+  /**
+   * checks if a company already exist or not
+   * - Input: handle
+   * - output: boolean
+   */
+  static async checkCompany(handle) {
+    const results = await db.query(
+      'SELECT handle, name FROM companies WHERE handle = $1',
+      [handle]
+    );
+
+    if (results.rows[0]) {
+      return true;
+    } else {
+      return false;
+    }
   }
 }
 

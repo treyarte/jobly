@@ -8,7 +8,7 @@ const jwt = require('jsonwebtoken');
 let u1, u2;
 describe('Authentication test routes', () => {
   beforeEach(async () => {
-    db.query('DELETE FROM users');
+    await db.query('DELETE FROM users');
     const users = await createTestUsers();
     u1 = users[0];
     u2 = users[1];
